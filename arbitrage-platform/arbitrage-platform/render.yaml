@@ -9,6 +9,11 @@ services:
   # service type — same approach used in the crypto-liquidity-monitor project).
   - type: web
     name: arbitrage-platform-web
+    # NOTE: this repo currently has the project files one level deeper than
+    # the repo root (arbitrage-platform/arbitrage-platform/...), so we tell
+    # Render to treat that inner folder as the build root. If you later
+    # flatten the repo structure, remove this line.
+    rootDir: arbitrage-platform/arbitrage-platform
     env: docker
     dockerfilePath: ./Dockerfile
     dockerCommand: uvicorn app.web:app --host 0.0.0.0 --port $PORT
@@ -43,6 +48,4 @@ services:
       - key: SIGNAL_COOLDOWN_SECONDS
         value: "120"
       - key: PAPER_TRADING_START_BALANCE
-        value: "10000"
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
+        value:
