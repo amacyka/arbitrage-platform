@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-arbitrage}
+      POSTGRES_USER: ${POSTGRES_USER:-arbitrage}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-arbitrage}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    command: uvicorn app.web:app --host 0.0.0.0 --port 8000
+
+volumes:
+  pgdata:

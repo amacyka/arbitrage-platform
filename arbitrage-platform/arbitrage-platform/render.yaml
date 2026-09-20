@@ -1,0 +1,48 @@
+databases:
+  - name: arbitrage-platform-db
+    plan: free
+
+services:
+  # Single free-tier web service: serves a small status page AND runs the
+  # collectors + arbitrage engine + Telegram bot as background tasks inside
+  # the same process (Render's free plan has no separate background-worker
+  # service type — same approach used in the crypto-liquidity-monitor project).
+  - type: web
+    name: arbitrage-platform-web
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: uvicorn app.web:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: arbitrage-platform-db
+          property: connectionString
+      - key: BINANCE_API_BASE_URL
+        value: https://api.binance.com
+      - key: BYBIT_API_BASE_URL
+        value: https://api.bybit.com
+      - key: BINANCE_TAKER_FEE
+        value: "0.001"
+      - key: BYBIT_TAKER_FEE
+        value: "0.001"
+      - key: COLLECT_INTERVAL_SECONDS
+        value: "5"
+      - key: TRACKED_ASSETS
+        value: "BTC,ETH,SOL,BNB,XRP,TON,DOGE"
+      - key: QUOTE_ASSET
+        value: "USDT"
+      - key: DEFAULT_MIN_ROI_PCT
+        value: "0.5"
+      - key: DEFAULT_MIN_PROFIT_USDT
+        value: "20"
+      - key: DEFAULT_MIN_VOLUME_USDT
+        value: "500"
+      - key: DEFAULT_CAPITAL_USDT
+        value: "1000"
+      - key: SIGNAL_COOLDOWN_SECONDS
+        value: "120"
+      - key: PAPER_TRADING_START_BALANCE
+        value: "10000"
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
